@@ -1,0 +1,30 @@
+# --- Python ---
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+build/
+dist/
+.pytest_cache/
+.ruff_cache/
+
+# --- PyInstaller build cache and output ---
+_build/
+*.spec
+StencilGen-免安装版/
+
+# --- generated models ---
+*_stencil/
+*.step
+*.stl
+*.3mf
+!docs/*.step
+!docs/examples/*.dxf
+
+# --- editor / OS ---
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+desktop.ini

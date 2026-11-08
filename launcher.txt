@@ -1,0 +1,32 @@
+@echo off
+chcp 65001 >nul
+setlocal
+cd /d "%~dp0"
+
+set "EXE=%~dp0StencilGen.exe"
+if not exist "%EXE%" (
+    echo.
+    echo [错误] 这个文件夹里没有 StencilGen.exe
+    echo        不要把文件单独拎出来，整个文件夹一起拷贝。
+    echo.
+    pause
+    exit /b 1
+)
+
+rem 清掉「此文件来自网络」标记，避免 Windows SmartScreen 拦截
+powershell -NoProfile -Command "Get-ChildItem -LiteralPath '%~dp0' -Recurse -File -ErrorAction SilentlyContinue | Unblock-File -ErrorAction SilentlyContinue" 1>nul 2>nul
+
+if "%~1"=="" goto :gui
+
+echo.
+echo 正在处理：%~1
+echo.
+"%EXE%" "%~1" --fixture
+echo.
+echo 输出在源文件旁边的 ^<板名^>_stencil 文件夹里。
+echo.
+pause
+exit /b 0
+
+:gui
+start "" "%EXE%"

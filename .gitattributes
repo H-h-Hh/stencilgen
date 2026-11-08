@@ -1,0 +1,15 @@
+* text=auto eol=lf
+
+# Windows 批处理必须是 CRLF，否则 cmd 解析会出错
+*.bat text eol=crlf
+*.cmd text eol=crlf
+*.ps1 text eol=crlf
+# launcher.txt 会被复制成 启动.bat，同样必须是 CRLF
+launcher.txt text eol=crlf
+*.txt text eol=crlf
+
+*.png binary
+*.jpg binary
+*.stl binary
+*.3mf binary
+*.step binary

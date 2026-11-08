@@ -1,0 +1,23 @@
+钢网生成器 · 免安装版
+=====================
+
+双击「启动.bat」                    → 打开图形界面
+把 Gerber 的 .zip 拖到「启动.bat」上 → 直接生成全套文件
+
+生成的输出在源文件旁边的 <板名>_stencil 文件夹里：
+    顶层/底层钢网  .step / .stl / .dxf / .svg
+    固定底座       fixture.step / .stl
+    报告           report.txt
+
+不需要安装 Python，也不需要联网。
+
+注意事项
+--------
+1. 整个文件夹要一起拷贝，不要只拿 StencilGen.exe 出来。
+2. 如果 Windows 提示「已保护你的电脑」，点「更多信息 → 仍要运行」。
+3. 生成的是什么：钢网开孔取自 Gerber 的钢网层（Paste Mask），
+   板框取自 BoardOutline 层；PCB 的 3D STEP 文件里没有开孔信息，不能代替。
+
+命令行（可选）
+--------------
+    StencilGen.exe 板子.zip --fixture -o D:\out
