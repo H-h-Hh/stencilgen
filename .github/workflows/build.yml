@@ -29,10 +29,14 @@ jobs:
         include:
           - os: windows-latest
             name: windows-x64
+            strip_flag: ""
           - os: macos-latest
             name: macos-arm64
+            strip_flag: ""
           - os: ubuntu-latest
             name: linux-x64
+            # Linux OCP wheels ship unstripped .so files (~270 MB); strip them.
+            strip_flag: "--strip"
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v4
@@ -49,11 +53,16 @@ jobs:
       - name: Build
         run: >
           pyinstaller --noconfirm --onedir --console --name StencilGen
+          ${{ matrix.strip_flag }}
           --collect-all OCP
           --exclude-module vtkmodules --exclude-module cadquery
           --exclude-module scipy --exclude-module numba --exclude-module llvmlite
           --exclude-module casadi --exclude-module matplotlib
           app.py
+
+      - name: Report size
+        shell: bash
+        run: du -sh dist/StencilGen
 
       - uses: actions/upload-artifact@v4
         with:
