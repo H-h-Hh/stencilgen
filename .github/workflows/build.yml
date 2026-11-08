@@ -48,7 +48,11 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install pyinstaller cadquery-ocp numpy ezdxf
+          # Pinned: this trio is verified to produce a working bundle.
+          # Unpinned runs shipped a bundle that died with
+          # "Unregistered type : Bnd_Box::Limits".
+          pip install "pyinstaller==6.22.3" "pyinstaller-hooks-contrib==2026.9" "cadquery-ocp==7.9.3.1.1"
+          pip install numpy ezdxf
 
       - name: Build
         run: >
@@ -64,22 +68,22 @@ jobs:
         shell: bash
         run: du -sh dist/StencilGen
 
-      # The Linux wheels lay their shared objects down twice: once inside the
-      # wheel's *.libs / vtkmodules folders, once more at the bundle root.
-      # Drop the copies and let the smoke test below prove nothing is missing.
+      # The Linux wheels lay every shared object down twice: once in the
+      # directory their RPATH points at (cadquery_ocp.libs/, vtkmodules/),
+      # and again at the bundle root. The root copies are dead weight.
       - name: Trim duplicate libraries
         if: matrix.name == 'linux-x64'
         shell: bash
         run: |
           set -euo pipefail
           cd dist/StencilGen/_internal
-          rm -rf vtkmodules
-          find . -mindepth 2 -type f \( -name '*.so' -o -name '*.so.*' \) -print0 |
+          du -sh .
+          find . -maxdepth 1 -type f \( -name '*.so' -o -name '*.so.*' \) -print0 |
             while IFS= read -r -d '' f; do
               base=$(basename "$f")
-              if [ -f "./$base" ] && cmp -s "$f" "./$base"; then rm -f "$f"; fi
+              twin=$(find . -mindepth 2 -type f -name "$base" -print -quit)
+              if [ -n "$twin" ] && cmp -s "$f" "$twin"; then rm -f "$f"; fi
             done
-          find . -mindepth 2 -type d -empty -delete
           du -sh .
 
       - name: Smoke test
