@@ -124,6 +124,22 @@ to fetch PyInstaller the first time.
 For macOS / Linux, either `pip install` (recommended) or build with PyInstaller —
 see `.github/workflows/build.yml` for a three-platform recipe.
 
+### "PermissionError: [WinError 5]" when writing output
+
+If the folder lives under a directory that carries a **low-integrity label**
+(virtualisation and sandboxing tools label their working directories this way),
+every executable inside inherits that label and the app gets *access denied* on
+any write outside the sandbox — while the same folder copied elsewhere works
+fine. Confirm with `icacls`:
+
+```bat
+icacls StencilGen.exe /setintegritylevel Medium
+```
+
+`launcher.txt` / `启动.bat` runs exactly this before starting the app, and
+`build_exe.bat` re-labels its output, so a plain double-click on the launcher
+self-heals. Starting `StencilGen.exe` directly does not.
+
 ## 中文速览
 
 ```bash

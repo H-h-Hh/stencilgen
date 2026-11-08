@@ -17,6 +17,9 @@
 2. 如果 Windows 提示「已保护你的电脑」，点「更多信息 → 仍要运行」。
 3. 生成的是什么：钢网开孔取自 Gerber 的钢网层（Paste Mask），
    板框取自 BoardOutline 层；PCB 的 3D STEP 文件里没有开孔信息，不能代替。
+4. 报「拒绝访问 [WinError 5]」时：多半是程序被降权运行了（放在沙箱目录里会这样）。
+   双击「启动.bat」启动即可自动修正；直接双击 StencilGen.exe 不会修正。
+   也可以手动执行：icacls StencilGen.exe /setintegritylevel Medium
 
 命令行（可选）
 --------------

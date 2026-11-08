@@ -16,6 +16,12 @@ if not exist "%EXE%" (
 rem 清掉「此文件来自网络」标记，避免 Windows SmartScreen 拦截
 powershell -NoProfile -Command "Get-ChildItem -LiteralPath '%~dp0' -Recurse -File -ErrorAction SilentlyContinue | Unblock-File -ErrorAction SilentlyContinue" 1>nul 2>nul
 
+rem 修正完整性标签：如果这个文件夹被放在带「低完整性」标记的目录里（各种沙箱
+rem 会这么干），exe 会被系统降权运行，写文件时到处报「拒绝访问 [WinError 5]」。
+rem 这里把它改回普通级别；没有权限或不是 NTFS 时静默跳过，不影响启动。
+icacls "%EXE%" /setintegritylevel Medium >nul 2>&1
+icacls "%~dp0." /setintegritylevel Medium >nul 2>&1
+
 if "%~1"=="" goto :gui
 
 echo.

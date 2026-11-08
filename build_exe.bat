@@ -1,6 +1,6 @@
 @echo off
 chcp 65001 >nul
-rem 重新打包免安装版（在 源码\ 里运行，产物写到 ..\StencilGen-免安装版）
+rem 重新打包免安装版（在 源码\ 里运行，产物写到 dist\StencilGen-免安装版）
 cd /d "%~dp0"
 
 set "OUT=%~dp0dist\StencilGen-免安装版"
@@ -29,6 +29,10 @@ rmdir /s /q "_build\out" 2>nul
 rem 把启动器和使用说明放进去（这两样不在 PyInstaller 产物里，必须每次补）
 copy /y "launcher.txt" "%OUT%\启动.bat" >nul || goto :err
 copy /y "使用说明.txt" "%OUT%\使用说明.txt" >nul || goto :err
+
+rem 新产物会继承本目录的完整性标签；若本目录是低完整性（各种沙箱），
+rem 生成的 exe 会被降权运行，写文件时报「拒绝访问」。统一改回 Medium。
+icacls "%OUT%" /setintegritylevel "(OI)(CI)Medium" /T >nul 2>&1
 
 echo.
 echo 完成：dist\StencilGen-免安装版\StencilGen.exe   (约 335 MB，目标机器不需要 Python)
