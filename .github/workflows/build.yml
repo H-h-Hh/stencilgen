@@ -64,6 +64,37 @@ jobs:
         shell: bash
         run: du -sh dist/StencilGen
 
+      # The Linux wheels lay their shared objects down twice: once inside the
+      # wheel's *.libs / vtkmodules folders, once more at the bundle root.
+      # Drop the copies and let the smoke test below prove nothing is missing.
+      - name: Trim duplicate libraries
+        if: matrix.name == 'linux-x64'
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd dist/StencilGen/_internal
+          rm -rf vtkmodules
+          find . -mindepth 2 -type f \( -name '*.so' -o -name '*.so.*' \) -print0 |
+            while IFS= read -r -d '' f; do
+              base=$(basename "$f")
+              if [ -f "./$base" ] && cmp -s "$f" "./$base"; then rm -f "$f"; fi
+            done
+          find . -mindepth 2 -type d -empty -delete
+          du -sh .
+
+      - name: Smoke test
+        shell: bash
+        working-directory: dist/StencilGen
+        run: |
+          set -euo pipefail
+          BIN=./StencilGen
+          if [ "$RUNNER_OS" = "Windows" ]; then BIN=./StencilGen.exe; fi
+          "$BIN" ../../tests/fixtures --fixture -o "$RUNNER_TEMP/smoke"
+          ls -l "$RUNNER_TEMP/smoke"
+          test -s "$RUNNER_TEMP/smoke/stencil_top.step"
+          test -s "$RUNNER_TEMP/smoke/stencil_bottom.stl"
+          test -s "$RUNNER_TEMP/smoke/fixture.stl"
+
       - uses: actions/upload-artifact@v4
         with:
           name: StencilGen-${{ matrix.name }}
